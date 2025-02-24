@@ -10,7 +10,6 @@ const Profile = () => {
   useEffect(() => {
     getUserProfile()
       .then((res) => {
-        console.log("Profile Data:", res);  // Using res directly, not res.data
         setProfile(res);
         setIsLoading(false);
       })
@@ -23,7 +22,7 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8 max-w-4xl mx-auto">
+      <div className="p-8 max-w-2xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <div className="space-y-6">
             <div className="animate-pulse h-24 w-24 bg-slate-200 rounded-full mx-auto"></div>
@@ -51,7 +50,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {/* Profile Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
@@ -71,7 +70,7 @@ const Profile = () => {
           {/* Profile Details */}
           <div className="p-8">
             <div className="space-y-6">
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
                 <User className="text-blue-600 w-6 h-6 mr-4" />
                 <div>
                   <p className="text-sm text-gray-500">Username</p>
@@ -79,7 +78,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
                 <Mail className="text-blue-600 w-6 h-6 mr-4" />
                 <div>
                   <p className="text-sm text-gray-500">Email</p>
@@ -87,7 +86,7 @@ const Profile = () => {
                 </div>
               </div>
 
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
                 <Shield className="text-blue-600 w-6 h-6 mr-4" />
                 <div>
                   <p className="text-sm text-gray-500">Role</p>

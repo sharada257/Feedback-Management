@@ -52,9 +52,11 @@ const Navbar = () => {
                 Feedback
               </Link>
 
-            <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
-              Kanban
-            </Link>
+              {(role === 'admin' || role === 'moderator') && (
+              <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
+                Kanban Board
+              </Link>
+            )}
 
             <Link to="/profile" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
               Profile

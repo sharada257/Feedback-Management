@@ -36,13 +36,11 @@ export const loginUser = async (credentials) => {
 
 export const getUserProfile = async () => {
   try {
-    const token = localStorage.getItem("token");
-    const response = await axiosInstance.get("profile/", {
-      headers: { Authorization: `Token  ${token}` }, 
-    });
+    const response = await axiosInstance.get("profile/");
     console.log("User Profile:", response.data);
     return response.data;
-  } catch (error) {
+  } 
+  catch (error) {
     console.error("Error fetching user profile:", error);
     return null;
   }

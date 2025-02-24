@@ -18,30 +18,29 @@ const Dashboard = () => {
     }
   });
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const [userRes, boardsRes] = await Promise.all([
-          getUserProfile(),
-          axiosInstance.get("/boards/")
-        ]);
+  const fetchDashboardData = async () => {
+    try {
+      const [userRes, boardsRes] = await Promise.all([
+        getUserProfile(),
+        axiosInstance.get("/boards/")
+      ]);
 
-        setUser(userRes);
+      setUser(userRes);
 
-        // If boards exist, get stats for the first board
-        if (boardsRes.data && boardsRes.data.length > 0) {
-          const statsRes = await axiosInstance.get(`/boards/${boardsRes.data[0].id}/get_stats/`);
-          setStats(statsRes.data);
-        }
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-      } finally {
-        setIsLoading(false);
+      if (boardsRes.data && boardsRes.data.length > 0) {
+        const statsRes = await axiosInstance.get(`/boards/${boardsRes.data[0].id}/get_stats/`);
+        setStats(statsRes.data);
       }
-    };
+    } 
+    catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } 
+    finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchDashboardData();
-  }, []);
+  useEffect(() => {fetchDashboardData();}, []);
 
 
   const StatCard = ({ icon: Icon, title, value, color = "blue" }) => (

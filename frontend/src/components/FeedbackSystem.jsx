@@ -12,9 +12,7 @@ const FeedbackSystem = () => {
   const [newComment, setNewComment] = useState("");
   const [activeCommentId, setActiveCommentId] = useState(null);
 
-  useEffect(() => {
-    fetchAllFeedbacks();
-  }, []);
+
 
   const fetchAllFeedbacks = async () => {
     try {
@@ -25,6 +23,11 @@ const FeedbackSystem = () => {
     }
   };
 
+  useEffect(() => {
+    fetchAllFeedbacks();
+  }, []);
+
+  
   const handleAddFeedback = async (e) => {
     e.preventDefault();
     if (newFeedback.title.trim() === "") return;
@@ -41,7 +44,7 @@ const FeedbackSystem = () => {
   const handleToggleUpvote = async (feedbackId) => {
     try {
       await axiosInstance.post(`feedbacks/${feedbackId}/toggle_upvote/`);
-      fetchAllFeedbacks(); // Refresh the feedbacks list
+      fetchAllFeedbacks(); 
     } catch (err) {
       console.error("Error toggling upvote:", err);
     }

@@ -5,9 +5,7 @@ const API_BASE_URL = "http://localhost:8000/api/";
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" }
 });
 
 axiosInstance.interceptors.request.use(
@@ -18,17 +16,13 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Handle Unauthorized errors (401)
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      console.warn("Unauthorized - Logging out...");
       logoutUser();
     }
     return Promise.reject(error);

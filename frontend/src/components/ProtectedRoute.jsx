@@ -5,7 +5,7 @@ const ProtectedRoute = (props) => {
   const { children, allowedRoles } = props;
   const token = localStorage.getItem("token");
   const userRole = localStorage.getItem("role");
-console.log("User Role:", userRole); 
+ 
   if (!token) {
     return <Navigate to="/login" />;
   }
