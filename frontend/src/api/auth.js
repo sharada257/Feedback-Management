@@ -1,8 +1,7 @@
 import axiosInstance from "./axiosConfig";
 
-// Register API Call (Fixes the Error)
 export const registerUser = async (userData) => {
-  console.log("Registering user with data:", userData); // Debugging
+  console.log("Registering user with data:", userData); 
 
   try {
     const response = await axiosInstance.post("register/", userData);
@@ -49,7 +48,6 @@ export const getUserProfile = async () => {
   }
 };
 
-// Logout User (Remove Token & Role)
 export const logoutUser = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("role");

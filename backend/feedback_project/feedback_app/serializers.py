@@ -37,4 +37,3 @@ class FeedbackSerializer(serializers.ModelSerializer):
         fields = ['id', 'board', 'title', 'description', 'status', 
                  'upvote_count', 'comment_count', 'created_at', 'user']
         read_only_fields = ['user', 'upvote_count', 'comment_count', 'created_at']  
-
