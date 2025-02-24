@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models import Count
+from django.db.models import Count, F, Sum
 from django.utils import timezone
 
 class UserProfile(models.Model):
@@ -21,18 +21,46 @@ class Board(models.Model):
     is_public = models.BooleanField(default=True)
 
     def get_stats(self):
-        feedbacks = self.feedback_set.all()
+        feedbacks = (
+            self.feedbacks.annotate(
+                engagement_score=(F('upvote_count') + F('comment_count'))
+            ).values(
+                'id', 
+                'title', 
+                'status',
+                'engagement_score'
+            )
+        )
+        
+        # Calculate trending feedbacks
+        trending_feedbacks = sorted(
+            feedbacks,
+            key=lambda x: x['engagement_score'],
+            reverse=True
+        )[:5]
+        
+        # Count statuses
+        status_counts = {}
+        active_count = 0
+        total_count = 0
+        
+        for feedback in feedbacks:
+            status = feedback['status']
+            status_counts[status] = status_counts.get(status, 0) + 1
+            if status == 'Open':
+                active_count += 1
+            total_count += 1
+        
         return {
-            'active_feedbacks': feedbacks.filter(status='Open').count(),
-            'total_feedbacks': feedbacks.count(),
-            'trending_feedbacks': feedbacks.annotate(
-                engagement_score=(models.F('upvote_count') + models.F('comment_count'))
-            ).order_by('-engagement_score')[:5],
-            'feedbacks_by_status': {
-                status: feedbacks.filter(status=status).count()
-                for status in ['Open', 'In Progress', 'Completed']
-            }
+            'active_feedbacks': active_count,
+            'total_feedbacks': total_count,
+            'trending_feedbacks': trending_feedbacks,
+            'feedbacks_by_status': status_counts
         }
+
+    def __str__(self):
+        return self.name
+
 
 class Feedback(models.Model):
     STATUS_CHOICES = [
@@ -41,8 +69,7 @@ class Feedback(models.Model):
         ('Completed', 'Completed')
     ]
 
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)  # ✅ Add related_name
-
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name="feedbacks")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
@@ -67,15 +94,24 @@ class Feedback(models.Model):
         return self.title
 
     def toggle_upvote(self, user):
-        if user in self.upvoted_by.all():
+        if self.upvoted_by.filter(id=user.id).exists():
             self.upvoted_by.remove(user)
-            self.upvote_count -= 1
-            self.save()
+            self.upvote_count = F('upvote_count') - 1  # ✅ More efficient update
+            self.save(update_fields=['upvote_count'])
             return False
         self.upvoted_by.add(user)
-        self.upvote_count += 1
-        self.save()
+        self.upvote_count = F('upvote_count') + 1
+        self.save(update_fields=['upvote_count'])
         return True
+    
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    status = models.CharField(
+        choices=STATUS_CHOICES,
+        default='Open',
+        max_length=20,
+        db_index=True  # Add index for frequent filtering
+    )
+
 
 class Comment(models.Model):
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='comments')
@@ -94,4 +130,4 @@ class Comment(models.Model):
         super().save(*args, **kwargs)
         if is_new:
             self.feedback.comment_count = self.feedback.comments.count()
-            self.feedback.save()
+            self.feedback.save(update_fields=['comment_count'])  # ✅ Only update necessary fields

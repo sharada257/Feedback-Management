@@ -29,11 +29,12 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'feedback', 'user', 'text', 'created_at']
         read_only_fields = ['user', 'created_at']
 
-from rest_framework import serializers
-from .models import Feedback
-
 class FeedbackSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    
     class Meta:
         model = Feedback
-        fields = '__all__'  
+        fields = ['id', 'board', 'title', 'description', 'status', 
+                 'upvote_count', 'comment_count', 'created_at', 'user']
+        read_only_fields = ['user', 'upvote_count', 'comment_count', 'created_at']  
 

@@ -1,74 +1,66 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosConfig";
-import { ThumbsUp, ThumbsDown, Send, MessageSquare } from "lucide-react"; // Import icons
+import { ThumbsUp, Send, MessageSquare } from "lucide-react";
 
 const FeedbackSystem = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [newFeedback, setNewFeedback] = useState({
     title: "",
     description: "",
-    board: 1, // Set your default board ID
+    board: 1,
   });
-  const [userVotes, setUserVotes] = useState({}); // Track user votes
+  const [newComment, setNewComment] = useState("");
+  const [activeCommentId, setActiveCommentId] = useState(null);
 
   useEffect(() => {
     fetchAllFeedbacks();
-    // Load user votes from localStorage
-    const savedVotes = JSON.parse(localStorage.getItem('userVotes') || '{}');
-    setUserVotes(savedVotes);
   }, []);
 
-  const fetchAllFeedbacks = () => {
-    axiosInstance
-      .get("feedbacks/")
-      .then((res) => {
-        setFeedbacks(res.data);
-      })
-      .catch((err) => {
-        console.error("Error fetching feedbacks:", err);
-      });
+  const fetchAllFeedbacks = async () => {
+    try {
+      const res = await axiosInstance.get("feedbacks/");
+      setFeedbacks(res.data);
+    } catch (err) {
+      console.error("Error fetching feedbacks:", err);
+    }
   };
 
-  const handleAddFeedback = (e) => {
+  const handleAddFeedback = async (e) => {
     e.preventDefault();
     if (newFeedback.title.trim() === "") return;
 
-    axiosInstance
-      .post("feedbacks/", newFeedback)
-      .then((res) => {
-        setFeedbacks((prev) => [...prev, res.data]);
-        setNewFeedback({ title: "", description: "", board: 1 });
-      })
-      .catch((err) => {
-        console.error("Error posting feedback:", err);
-      });
+    try {
+      const res = await axiosInstance.post("feedbacks/", newFeedback);
+      setFeedbacks((prev) => [...prev, res.data]);
+      setNewFeedback({ title: "", description: "", board: 1 });
+    } catch (err) {
+      console.error("Error posting feedback:", err);
+    }
   };
 
-  const handleVote = (feedbackId, voteType) => {
-    const voteKey = `${feedbackId}-${voteType}`;
-    const hasVoted = userVotes[voteKey];
+  const handleToggleUpvote = async (feedbackId) => {
+    try {
+      await axiosInstance.post(`feedbacks/${feedbackId}/toggle_upvote/`);
+      fetchAllFeedbacks(); // Refresh the feedbacks list
+    } catch (err) {
+      console.error("Error toggling upvote:", err);
+    }
+  };
 
-    if (hasVoted) return; // Prevent multiple votes
+  const handleAddComment = async (feedbackId) => {
+    if (!newComment.trim()) return;
 
-    const updatedVotes = { ...userVotes, [voteKey]: true };
-    setUserVotes(updatedVotes);
-    localStorage.setItem('userVotes', JSON.stringify(updatedVotes));
-
-    const endpoint = `feedbacks/${feedbackId}/`;
-    const updateData = {
-      [voteType === 'up' ? 'upvotes' : 'downvotes']: 1
-    };
-
-    axiosInstance
-      .patch(endpoint, updateData)
-      .then(() => fetchAllFeedbacks())
-      .catch((err) => {
-        console.error(`Error ${voteType}voting:`, err);
-        // Revert vote on error
-        delete updatedVotes[voteKey];
-        setUserVotes(updatedVotes);
-        localStorage.setItem('userVotes', JSON.stringify(updatedVotes));
+    try {
+      await axiosInstance.post("comments/", {
+        feedback: feedbackId,
+        text: newComment
       });
+      setNewComment("");
+      setActiveCommentId(null);
+      fetchAllFeedbacks();
+    } catch (err) {
+      console.error("Error adding comment:", err);
+    }
   };
 
   return (
@@ -114,38 +106,58 @@ const FeedbackSystem = () => {
             </h3>
             <p className="text-gray-600 mb-4">{feedback.description}</p>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 mb-4">
               <button
-                onClick={() => handleVote(feedback.id, 'up')}
-                disabled={userVotes[`${feedback.id}-up`]}
+                onClick={() => handleToggleUpvote(feedback.id)}
                 className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
-                  userVotes[`${feedback.id}-up`]
-                    ? 'bg-green-100 text-green-700'
+                  feedback.upvoted_by?.includes(feedback.user?.id)
+                    ? 'bg-blue-100 text-blue-700'
                     : 'hover:bg-gray-100'
                 }`}
               >
                 <ThumbsUp size={18} />
-                <span>{feedback.upvotes || 0}</span>
+                <span>{feedback.upvote_count}</span>
               </button>
 
               <button
-                onClick={() => handleVote(feedback.id, 'down')}
-                disabled={userVotes[`${feedback.id}-down`]}
-                className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors ${
-                  userVotes[`${feedback.id}-down`]
-                    ? 'bg-red-100 text-red-700'
-                    : 'hover:bg-gray-100'
-                }`}
+                onClick={() => setActiveCommentId(activeCommentId === feedback.id ? null : feedback.id)}
+                className="flex items-center gap-1 text-gray-500 hover:text-gray-700"
               >
-                <ThumbsDown size={18} />
-                <span>{feedback.downvotes || 0}</span>
-              </button>
-
-              <div className="flex items-center gap-1 text-gray-500">
                 <MessageSquare size={18} />
-                <span>{feedback.comments?.length || 0} comments</span>
-              </div>
+                <span>{feedback.comment_count || 0} comments</span>
+              </button>
             </div>
+
+            {/* Comments section */}
+            {feedback.comments && (
+              <div className="ml-4 border-l-2 border-gray-200 pl-4">
+                {feedback.comments.map((comment) => (
+                  <div key={comment.id} className="mb-2 text-gray-600">
+                    <p className="font-medium text-gray-800">{comment.user.username}:</p>
+                    <p>{comment.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add comment form */}
+            {activeCommentId === feedback.id && (
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="text"
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  onClick={() => handleAddComment(feedback.id)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Comment
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
