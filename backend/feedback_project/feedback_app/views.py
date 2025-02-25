@@ -124,7 +124,7 @@ class FeedbackViewSet(ModelViewSet):
 
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def toggle_upvote(self, request, pk=None):
-        feedback = self.get_object()  # Get the Feedback instance
+        feedback = self.get_object()  
         toggled = feedback.toggle_upvote(request.user)
         serializer = self.get_serializer(feedback)
         return Response(serializer.data)
@@ -136,5 +136,4 @@ class CommentViewSet(ModelViewSet):
     authentication_classes = [TokenAuthentication]
 
     def perform_create(self, serializer):
-        # Auto-assign the logged-in user as the comment owner
         serializer.save(user=self.request.user)

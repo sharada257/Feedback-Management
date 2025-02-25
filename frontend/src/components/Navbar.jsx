@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-
+import { logoutUser } from '../api/auth';
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setUserRole] = useState(null);
@@ -13,18 +13,10 @@ const Navbar = () => {
       setIsAuthenticated(true);
       setUserRole(role);
     } else {
-      navigate('/login'); // Redirect to login if no token found
+      navigate('/login'); 
     }
-  }, [navigate]); // Ensure it runs only once when the component mounts
+  }, [navigate]); 
 
-  const handleLogout = () => {
-    localStorage.removeItem('token'); 
-    localStorage.removeItem('role'); 
-    setIsAuthenticated(false);
-    navigate('/login'); // Redirect to login after logout
-  };
-
-  // Don't render navbar if user is not authenticated
   if (!isAuthenticated) return null;
 
   return (
@@ -48,9 +40,7 @@ const Navbar = () => {
               </Link>
             )}
 
-            <Link to="/feedback-system" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
-                Feedback
-              </Link>
+
 
               {(role === 'admin' || role === 'moderator') && (
               <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
@@ -58,15 +48,18 @@ const Navbar = () => {
               </Link>
             )}
 
+            <Link to="/boards" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
+              Boards
+            </Link>
+
             <Link to="/profile" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
               Profile
             </Link>
 
             <button
-              onClick={handleLogout}
+              onClick={logoutUser}
               className="ml-4 px-4 py-2 rounded-lg text-sm font-medium bg-red-500 transition-all duration-200 hover:bg-red-600 hover:scale-105 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-blue-600"
-            >
-              Logout
+            >Logout
             </button>
           </div>
         </div>

@@ -41,11 +41,9 @@ const Profile = () => {
   if (error) {
     return (
       <div className="p-8 max-w-4xl mx-auto">
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center">
-          {error}
-        </div>
+        <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center">{error}</div>
       </div>
-    );
+);
   }
 
   return (

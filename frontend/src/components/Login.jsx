@@ -14,7 +14,9 @@ const Login = () => {
     setError("");
     
     try {
-       await loginUser(formData);
+      console.log(formData)
+      await loginUser(formData);
+      console.log("logged in successfully");
       navigate("/");
     } catch (error) {
       setError("Invalid credentials. Please try again.");
@@ -37,9 +39,7 @@ const Login = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Username Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Username</label>
               <input
                 type="text"
                 placeholder="Enter your username"
@@ -52,9 +52,7 @@ const Login = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 placeholder="Enter your password"
@@ -101,7 +99,7 @@ const Login = () => {
                 Don't have an account?{" "}
                 <button
                   type="button"
-                  onClick={() => navigate("/register")} //navigates to the register page onclick is a event listener
+                  onClick={() => navigate("/register")} 
                   className="text-blue-600 font-medium hover:text-blue-700 
                            focus:outline-none focus:underline transition duration-200"
                 >

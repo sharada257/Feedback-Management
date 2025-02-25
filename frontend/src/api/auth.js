@@ -16,6 +16,7 @@ export const registerUser = async (userData) => {
 
 export const loginUser = async (credentials) => {
   try {
+    console.log(credentials)
     const response = await axiosInstance.post("login/", credentials);
     console.log("Login Response:", response.data); 
 

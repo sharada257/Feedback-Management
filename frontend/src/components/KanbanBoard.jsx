@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosConfig";
 import { useDrag, useDrop, DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import ErrorState from "./common/ErrorState";
+import LoadingState from "./common/LoadingState";
+import { ChevronDown } from "lucide-react";
 
 const ITEM_TYPE = "feedback";
 
@@ -95,23 +98,102 @@ const StatusColumn = ({ status, feedbacks, moveFeedback }) => {
   );
 };
 
+const BoardSelector = ({ boards, selectedBoard, onBoardChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="relative mb-6">
+      <div 
+        className="flex items-center justify-between bg-white rounded-lg shadow-sm p-3 cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="font-medium text-gray-800">
+          {selectedBoard ? selectedBoard.name : "Select a board"}
+        </div>
+        <ChevronDown className={`text-gray-600 transition-transform ${isOpen ? 'rotate-180' : ''}`} size={20} />
+      </div>
+      
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white rounded-lg shadow-lg overflow-hidden">
+          {boards.map((board) => (
+            <div
+              key={board.id}
+              className="p-3 hover:bg-blue-50 cursor-pointer transition-colors"
+              onClick={() => {
+                onBoardChange(board);
+                setIsOpen(false);
+              }}
+            >
+              <div className="font-medium text-gray-800">{board.name}</div>
+              <div className="text-sm text-gray-500">
+                {board.is_public ? "Public" : "Private"}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const KanbanBoard = () => {
   const [feedbacks, setFeedbacks] = useState([]);
+  const [boards, setBoards] = useState([]);
+  const [selectedBoard, setSelectedBoard] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Fetch all boards first
   useEffect(() => {
     axiosInstance
-      .get("feedbacks/")
+      .get("boards/")
       .then((res) => {
-        setFeedbacks(res.data);
-        setIsLoading(false);
+        setBoards(res.data);
+        // If boards are returned, select the first one by default
+        if (res.data.length > 0) {
+          setSelectedBoard(res.data[0]);
+        }
       })
       .catch((err) => {
-        setError("Failed to load feedback items");
+        console.error("Failed to load boards:", err);
+        setError("Failed to load boards");
         setIsLoading(false);
       });
   }, []);
+
+
+
+
+  const fetchBoardFeedbacks =(async () => {
+    if (selectedBoard) {
+      try {
+        setIsLoading(true);
+        console.log(`Fetching all feedbacks and filtering for board ${selectedBoard.id}`);
+        const response = await axiosInstance.get(`feedbacks/`);
+        const filteredFeedbacks = response.data.filter(feedback => feedback.board === parseInt(selectedBoard.id, 10));
+        console.log('Filtered feedbacks with comments:', filteredFeedbacks);
+        setFeedbacks(filteredFeedbacks);
+        setError(null);
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+        setError("Failed to load feedbacks");
+      } finally {
+        setIsLoading(false);
+      }
+  }});
+
+
+  // Fetch feedbacks when a board is selected
+  useEffect(() => {
+    if (selectedBoard) {
+      fetchBoardFeedbacks();
+    }
+  }, [selectedBoard]);
+  
+
+  const handleBoardChange = (board) => {
+    setSelectedBoard(board);
+  };
 
   const moveFeedback = (id, newStatus) => {
     setFeedbacks((prevFeedbacks) =>
@@ -124,28 +206,11 @@ const KanbanBoard = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="animate-pulse flex space-x-6">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="flex-1 space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-32 bg-gray-200 rounded"></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
-    return (
-      <div className="p-8">
-        <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center">
-          {error}
-        </div>
-      </div>
-    );
+    return <ErrorState />;
   }
 
   return (
@@ -155,6 +220,14 @@ const KanbanBoard = () => {
           <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-6">
             Kanban Board
           </h2>
+          
+          {/* Board selector component */}
+          <BoardSelector 
+            boards={boards} 
+            selectedBoard={selectedBoard} 
+            onBoardChange={handleBoardChange} 
+          />
+          
           <div className="flex flex-col md:flex-row gap-6">
             {["Open", "In Progress", "Completed"].map((status) => (
               <StatusColumn
