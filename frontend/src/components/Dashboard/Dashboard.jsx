@@ -437,38 +437,8 @@ const Dashboard = () => {
                   No status distribution data available
                 </div>
               )}
-            </div>
-            
-            {/* Tag Distribution */}
-            <div className="bg-white rounded-xl shadow-md p-6">
-              <div className="flex items-center gap-3 mb-6">
-                <Tag className="text-blue-600" size={24} />
-                <h3 className="text-xl font-semibold text-gray-800">Feedback by Tag</h3>
-              </div>
-              
-              {tagDistribution && tagDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={tagDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#8884d8">
-                      {tagDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="bg-gray-50 rounded-lg p-6 text-center text-gray-500">
-                  No tag distribution data available
-                </div>
-              )}
-            </div>
-          </div>
+            </div></div>
 
-          {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <QuickAction
               to="/feedback-system"

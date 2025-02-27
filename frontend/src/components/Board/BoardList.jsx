@@ -3,6 +3,7 @@ import { Folder } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosConfig";
 import CreateBoard from "./CreateBoard";
+import LoadingState from "../common/LoadingState";
 
 const BoardList = () => {
     const [boards, setBoards] = useState([]);
@@ -24,6 +25,7 @@ const BoardList = () => {
       fetchBoards();
     }, []);
   
+    //Adding the new board to board array
     const handleBoardCreated = (newBoard) => {
       setBoards([...boards, newBoard]);
     };
@@ -33,20 +35,7 @@ const BoardList = () => {
     };
   
     if (loading) {
-      return (
-        <div className="min-h-screen bg-gray-50 p-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="animate-pulse space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="h-32 bg-gray-200 rounded-xl"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      );
+      return <LoadingState />;
     }
   
     return (

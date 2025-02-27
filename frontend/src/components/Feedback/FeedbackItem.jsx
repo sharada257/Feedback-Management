@@ -18,12 +18,10 @@ const FeedbackItem = ({
   const [editingFeedbackId, setEditingFeedbackId] = useState(null);
   const [showComments, setShowComments] = useState(false);
 
-  // Check if user has admin/moderator permissions
   const hasModeratorPermissions = () => {
     return currentUser?.role === 'Admin' || currentUser?.role === 'Moderator';
   };
 
-  // Check if user owns a specific feedback
   const isOwnFeedback = (feedbackUserId) => {
     return currentUser?.id === feedbackUserId;
   };
@@ -114,7 +112,6 @@ const FeedbackItem = ({
               {feedback.title}
             </h3>
             
-            {/* Feedback Actions - Always visible for authorized users */}
             {(isOwnFeedback(feedback.user) || hasModeratorPermissions()) && (
               <div className="flex space-x-2">
                 {isOwnFeedback(feedback.user) && (
@@ -169,7 +166,6 @@ const FeedbackItem = ({
         </>
       )}
 
-      {/* Comments Section - Conditionally rendered based on showComments state */}
       {showComments && (
         <div className="border-t border-gray-200 mt-4 pt-4">
           <CommentList 

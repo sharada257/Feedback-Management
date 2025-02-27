@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, Trash2 } from "lucide-react";
 import axiosInstance from "../../api/axiosConfig";
 import FeedbackSystem from "../Feedback/FeedbackSystem";
+import { getUserProfile } from "../../api/auth";
+import LoadingState from "../common/LoadingState";
 
 const BoardDetails = () => {
   const { boardId } = useParams();
@@ -14,18 +16,12 @@ const BoardDetails = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editData, setEditData] = useState({ name: "", is_public: true });
 
-  // Fetch current user info to check permissions
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await axiosInstance.get("profile/");
-        setCurrentUser(response.data);
-      } catch (error) {
-        console.error("Error fetching user info:", error);
-      }
-    };
-    fetchUserInfo();
+        const response = getUserProfile
+        setCurrentUser(response);
   }, []);
+
+
 
   useEffect(() => {
     const fetchBoardDetails = async () => {
@@ -52,12 +48,11 @@ const BoardDetails = () => {
   }, [boardId, navigate]);
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/boards');
   };
 
-  // Check if user has admin/moderator permissions
   const hasEditPermissions = () => {
-    return currentUser?.role === 'Admin' || currentUser?.role === 'Moderator';
+    return currentUser?.role === 'admin' || currentUser?.role === 'moderator';
   };
 
   const handleInputChange = (e) => {
@@ -83,7 +78,7 @@ const BoardDetails = () => {
     if (window.confirm("Are you sure you want to delete this board? This action cannot be undone.")) {
       try {
         await axiosInstance.delete(`boards/${boardId}/`);
-        navigate('/');
+        navigate('/boards');
       } catch (error) {
         console.error("Error deleting board:", error);
         alert("Failed to delete board. Please try again.");
@@ -92,16 +87,7 @@ const BoardDetails = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-32 bg-gray-200 rounded-xl"></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
@@ -147,7 +133,6 @@ const BoardDetails = () => {
             </span>
           )}
           
-          {/* Admin/Moderator Controls */}
           {hasEditPermissions() && (
             <div className="ml-auto flex space-x-2">
               <button
@@ -168,7 +153,6 @@ const BoardDetails = () => {
           )}
         </div>
 
-        {/* Edit Board Modal */}
         {showEditModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
@@ -219,7 +203,6 @@ const BoardDetails = () => {
           </div>
         )}
 
-        {/* Only render FeedbackSystem if we have a valid board */}
         {board && <FeedbackSystem boardId={boardId} currentUser={currentUser} />}
       </div>
     </div>

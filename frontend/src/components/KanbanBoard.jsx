@@ -143,13 +143,11 @@ const KanbanBoard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch all boards first
   useEffect(() => {
     axiosInstance
       .get("boards/")
       .then((res) => {
         setBoards(res.data);
-        // If boards are returned, select the first one by default
         if (res.data.length > 0) {
           setSelectedBoard(res.data[0]);
         }
@@ -183,7 +181,6 @@ const KanbanBoard = () => {
   }});
 
 
-  // Fetch feedbacks when a board is selected
   useEffect(() => {
     if (selectedBoard) {
       fetchBoardFeedbacks();
