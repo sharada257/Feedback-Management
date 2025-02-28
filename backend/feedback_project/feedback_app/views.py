@@ -8,11 +8,8 @@ from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from rest_framework.authentication import TokenAuthentication
-
 from .models import Board, Feedback, Comment, UserProfile
-from .serializers import (
-    BoardSerializer, FeedbackSerializer, CommentSerializer, UserProfileSerializer
-)
+from .serializers import (BoardSerializer, FeedbackSerializer, CommentSerializer, UserProfileSerializer)
 
 
 @api_view(['POST'])
@@ -122,12 +119,22 @@ class FeedbackViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
-    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def toggle_upvote(self, request, pk=None):
-        feedback = self.get_object()  
-        toggled = feedback.toggle_upvote(request.user)
-        serializer = self.get_serializer(feedback)
-        return Response(serializer.data)
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def toggle_upvote(request, feedback_id):
+    try:
+        feedback = Feedback.objects.get(id=feedback_id)
+        user = request.user  
+
+        result = feedback.toggle_upvote(user)
+        return Response(result, status=status.HTTP_200_OK)
+    
+    except Feedback.DoesNotExist:
+        return Response({"error": "Feedback not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()

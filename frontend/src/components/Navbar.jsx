@@ -30,9 +30,11 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-4">
+          {(role === 'admin' || role === 'moderator') && (
             <Link to="/" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
               Dashboard
             </Link>
+          )}
 
             {(role === 'admin' || role === 'moderator') && (
               <Link to="/feedbacks" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">

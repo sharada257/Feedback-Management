@@ -4,28 +4,39 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosConfig";
 import CreateBoard from "./CreateBoard";
 import LoadingState from "../common/LoadingState";
+import { getUserProfile } from "../../api/auth";
 
 const BoardList = () => {
     const [boards, setBoards] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [userRole, setUserRole] = useState(null); // State to store user role
     const navigate = useNavigate();
   
-    const fetchBoards = async () => {
-      try {
-        const response = await axiosInstance.get("boards/");
-        setBoards(response.data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching boards:", error);
-        setLoading(false);
-      }
-    };
-  
     useEffect(() => {
+      const fetchBoards = async () => {
+        try {
+          const response = await axiosInstance.get("boards/");
+          setBoards(response.data);
+        } catch (error) {
+          console.error("Error fetching boards:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const fetchUserRole = async () => {
+        try {
+          const response = await getUserProfile();
+          setUserRole(response.role); 
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+        }
+      };
+
       fetchBoards();
+      fetchUserRole();
     }, []);
   
-    //Adding the new board to board array
     const handleBoardCreated = (newBoard) => {
       setBoards([...boards, newBoard]);
     };
@@ -41,7 +52,9 @@ const BoardList = () => {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
-          <CreateBoard onBoardCreated={handleBoardCreated} />
+          {userRole === "admin" || userRole === "moderator" ? (
+            <CreateBoard onBoardCreated={handleBoardCreated} />
+          ) : null}
   
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {boards.map((board) => (
@@ -67,5 +80,6 @@ const BoardList = () => {
         </div>
       </div>
     );
-  };
+};
+
 export default BoardList;

@@ -2,19 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Count, F, Sum
 from django.utils import timezone
+from django.db import transaction
 
 class UserProfile(models.Model):
-    ROLE_CHOICES = [
-        ('admin', 'Admin'),
-        ('moderator', 'Moderator'),
-        ('contributor', 'Contributor'),
-    ]
+    ROLE_CHOICES = [('admin', 'Admin'),('moderator', 'Moderator'),('contributor', 'Contributor'),]
     
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')#Each user has one profile
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='contributor')
-    
-    def __str__(self):
-        return f"{self.user.username} - {self.role}"
 
 class Board(models.Model):
     name = models.CharField(max_length=255)
@@ -32,14 +26,12 @@ class Board(models.Model):
             )
         )
         
-        # Calculate trending feedbacks
         trending_feedbacks = sorted(
             feedbacks,
             key=lambda x: x['engagement_score'],
             reverse=True
         )[:5]
         
-        # Count statuses
         status_counts = {}
         active_count = 0
         total_count = 0
@@ -58,10 +50,6 @@ class Board(models.Model):
             'feedbacks_by_status': status_counts
         }
 
-    def __str__(self):
-        return self.name
-
-
 class Feedback(models.Model):
     STATUS_CHOICES = [
         ('Open', 'Open'),
@@ -73,44 +61,28 @@ class Feedback(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    status = models.CharField(
-        choices=STATUS_CHOICES,
-        default='Open',
-        max_length=20
-    )
+    status = models.CharField(choices=STATUS_CHOICES,default='Open',max_length=20)
     upvote_count = models.PositiveIntegerField(default=0)
     comment_count = models.PositiveIntegerField(default=0)
-    upvoted_by = models.ManyToManyField(
-        User, 
-        related_name='upvoted_feedbacks',
-        blank=True
-    )
+    upvoted_by = models.ManyToManyField(User, related_name='upvoted_feedbacks',blank=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
         ordering = ['-created_at']
 
-    def __str__(self):
-        return self.title
-
     def toggle_upvote(self, user):
         if self.upvoted_by.filter(id=user.id).exists():
             self.upvoted_by.remove(user)
-            self.upvote_count = F('upvote_count') - 1  # ✅ More efficient update
-            self.save(update_fields=['upvote_count'])
-            return False
-        self.upvoted_by.add(user)
-        self.upvote_count = F('upvote_count') + 1
+        else:
+            self.upvoted_by.add(user)
+
+        self.upvote_count = self.upvoted_by.count()
         self.save(update_fields=['upvote_count'])
-        return True
-    
-    created_at = models.DateTimeField(default=timezone.now, db_index=True)
-    status = models.CharField(
-        choices=STATUS_CHOICES,
-        default='Open',
-        max_length=20,
-        db_index=True  # Add index for frequent filtering
-    )
+
+        return {
+            "upvoted_by": list(self.upvoted_by.values_list('id', flat=True)),  
+            "upvote_count": self.upvote_count,
+        }
 
 
 class Comment(models.Model):
@@ -122,12 +94,9 @@ class Comment(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-    def __str__(self):
-        return f"Comment by {self.user.username}"
-
     def save(self, *args, **kwargs):
         is_new = self._state.adding
         super().save(*args, **kwargs)
         if is_new:
             self.feedback.comment_count = self.feedback.comments.count()
-            self.feedback.save(update_fields=['comment_count'])  # ✅ Only update necessary fields
+            self.feedback.save(update_fields=['comment_count']) 

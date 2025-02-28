@@ -15,23 +15,26 @@ const FeedbackSystem = ({ boardId, currentUser }) => {
     
     setLoading(true);
     try {
-      console.log(`Fetching all feedbacks and filtering for board ${boardId}`);
       const response = await axiosInstance.get(`feedbacks/`);
       const filteredFeedbacks = response.data.filter(feedback => feedback.board === parseInt(boardId, 10));
       
-      for (const feedback of filteredFeedbacks) {
-        if (feedback.comment_count > 0 && (!feedback.comments || feedback.comments.length === 0)) {
-          try {
-            const commentsResponse = await axiosInstance.get(`comments/?feedback=${feedback.id}`);
-            feedback.comments = commentsResponse.data;
-          } catch (commentError) {
-            console.error(`Error fetching comments for feedback ${feedback.id}:`, commentError);
+      // Fetch comments for feedbacks with comments but no loaded comment data
+      const feedbacksWithComments = await Promise.all(
+        filteredFeedbacks.map(async (feedback) => {
+          if (feedback.comment_count > 0 && (!feedback.comments || feedback.comments.length === 0)) {
+            try {
+              const commentsResponse = await axiosInstance.get(`comments/?feedback=${feedback.id}`);
+              return { ...feedback, comments: commentsResponse.data };
+            } catch (error) {
+              console.error(`Error fetching comments for feedback ${feedback.id}:`, error);
+              return { ...feedback, comments: [] };
+            }
           }
-        }
-      }
+          return feedback;
+        })
+      );
       
-      console.log('Filtered feedbacks with comments:', filteredFeedbacks);
-      setFeedbacks(filteredFeedbacks);
+      setFeedbacks(feedbacksWithComments);
       setError(null);
     } catch (error) {
       console.error("Error fetching feedbacks:", error);
@@ -41,57 +44,49 @@ const FeedbackSystem = ({ boardId, currentUser }) => {
     }
   }, [boardId]);
 
-  
   useEffect(() => {
     if (boardId) {
       fetchBoardFeedbacks();
     }
   }, [boardId, fetchBoardFeedbacks]);
 
+  const updateFeedbackById = useCallback((feedbackId, updateFn) => {
+    setFeedbacks(prev => prev.map(feedback => 
+      feedback.id === feedbackId ? updateFn(feedback) : feedback
+    ));
+  }, []);
+
   const handleAddFeedback = (newFeedback) => {
     setFeedbacks(prev => [newFeedback, ...prev]);
   };
 
   const handleUpdateFeedback = (updatedFeedback) => {
-    setFeedbacks(prev => 
-      prev.map(feedback => 
-        feedback.id === updatedFeedback.id ? updatedFeedback : feedback
-      )
-    );
+    updateFeedbackById(updatedFeedback.id, () => updatedFeedback);
   };
 
   const handleDeleteFeedback = (feedbackId) => {
     setFeedbacks(prev => prev.filter(feedback => feedback.id !== feedbackId));
   };
 
-  const handleToggleUpvote = (feedbackId, upvoteData) => {
-    setFeedbacks(prev => 
-      prev.map(feedback => {
-        if (feedback.id === feedbackId) {
-          return {
-            ...feedback,
-            upvote_count: upvoteData.upvote_count,
-            upvoted_by: upvoteData.upvoted_by
-          };
-        }
-        return feedback;
-      })
-    );
+  const handleToggleUpvote = (feedbackId, updatedFeedbackData) => {
+    // Ensure we properly merge the updated data with existing data
+    updateFeedbackById(feedbackId, (currentFeedback) => {
+      // Make sure to preserve comments and other data that might not be in the response
+      return {
+        ...currentFeedback,
+        ...updatedFeedbackData,
+        // Ensure comments are preserved if they exist in the current feedback
+        comments: currentFeedback.comments || updatedFeedbackData.comments || []
+      };
+    });
   };
 
   const handleAddComment = (feedbackId, newComment) => {
-    setFeedbacks(prev => 
-      prev.map(feedback => {
-        if (feedback.id === feedbackId) {
-          return {
-            ...feedback,
-            comments: [...(feedback.comments || []), newComment],
-            comment_count: (feedback.comment_count || 0) + 1
-          };
-        }
-        return feedback;
-      })
-    );
+    updateFeedbackById(feedbackId, (feedback) => ({
+      ...feedback,
+      comments: [...(feedback.comments || []), newComment],
+      comment_count: (feedback.comment_count || 0) + 1
+    }));
   };
 
   const handleUpdateComment = (feedbackId, updatedComment) => {
@@ -111,18 +106,16 @@ const FeedbackSystem = ({ boardId, currentUser }) => {
   };
 
   const handleDeleteComment = (feedbackId, commentId) => {
-    setFeedbacks(prev => 
-      prev.map(feedback => {
-        if (feedback.comments?.some(c => c.id === commentId)) {
-          return {
-            ...feedback,
-            comments: feedback.comments.filter(c => c.id !== commentId),
-            comment_count: feedback.comment_count - 1
-          };
-        }
-        return feedback;
-      })
-    );
+    updateFeedbackById(feedbackId, (feedback) => {
+      if (feedback.comments?.some(c => c.id === commentId)) {
+        return {
+          ...feedback,
+          comments: feedback.comments.filter(c => c.id !== commentId),
+          comment_count: Math.max(0, feedback.comment_count - 1)
+        };
+      }
+      return feedback;
+    });
   };
 
   if (loading) {
@@ -141,7 +134,6 @@ const FeedbackSystem = ({ boardId, currentUser }) => {
         onFeedbackAdded={handleAddFeedback} 
       />
 
-  
       {feedbacks.length === 0 ? (
         <div className="bg-white rounded-xl shadow-lg p-6 text-center">
           <p className="text-gray-500">No feedback for this board yet. Be the first to add one!</p>

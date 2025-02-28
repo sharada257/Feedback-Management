@@ -21,7 +21,6 @@ class BoardSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class CommentSerializer(serializers.ModelSerializer):
-    # Show basic user info
     user = UserSerializer(read_only=True)
 
     class Meta:
@@ -36,4 +35,32 @@ class FeedbackSerializer(serializers.ModelSerializer):
         model = Feedback
         fields = ['id', 'board', 'title', 'description', 'status', 
                  'upvote_count', 'comment_count', 'created_at', 'user']
-        read_only_fields = ['user', 'upvote_count', 'comment_count', 'created_at']  
+        read_only_fields = ['user', 'created_at'] 
+
+    def get_upvotes_count(self, obj):
+        return obj.upvotes.count()  
+    
+    def get_upvoted_by(self, obj):
+        return [user.id for user in obj.upvotes.all()] 
+ 
+        
+        
+        
+        
+        
+        
+        
+        
+"""
+serializers → Provides tools to convert Django models to JSON and validate API input.
+User → The default Django authentication model.
+Board, Feedback, Comment, UserProfile → The custom models from models.py.
+
+serializers.ModelSerializer: Automatically maps Django models to JSON.
+UserSerializer: Handles user details but makes id read-only.
+read_only=True: Ensures certain fields (like user, created_at) cannot be modified via API.
+Nested Serializers (UserSerializer inside CommentSerializer & FeedbackSerializer):
+   Allows structured JSON responses instead of just IDs.
+   Provides better API readability.
+
+"""

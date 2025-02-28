@@ -17,10 +17,18 @@ const BoardDetails = () => {
   const [editData, setEditData] = useState({ name: "", is_public: true });
 
   useEffect(() => {
-        const response = getUserProfile
-        setCurrentUser(response);
+    const fetchUserProfile = async () => {
+      try {
+        const response = await getUserProfile(); // Call function to fetch data
+        setCurrentUser(response); 
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+  
+    fetchUserProfile();
   }, []);
-
+  
 
 
   useEffect(() => {
@@ -52,6 +60,8 @@ const BoardDetails = () => {
   };
 
   const hasEditPermissions = () => {
+    console.log("meeeeeeeeeeee");
+    console.log(currentUser);
     return currentUser?.role === 'admin' || currentUser?.role === 'moderator';
   };
 

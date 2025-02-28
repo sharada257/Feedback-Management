@@ -1,25 +1,42 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { loginUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    setFormData({ username: "", password: "" });
+  }, []);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
-    
+    setError(""); // Reset error only on new attempt
+
+    if (!formData.username || !formData.password) {
+      setError("Both fields are required.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      console.log(formData)
-      await loginUser(formData);
-      console.log("logged in successfully");
+      const response = await loginUser(formData);
+      localStorage.setItem("token", response.token);
       navigate("/");
-    } catch (error) {
-      setError("Invalid credentials. Please try again.");
+    } catch (err) {
+      setError(
+        err.response?.data?.detail || "Invalid credentials. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -28,86 +45,64 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
       <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 backdrop-blur-lg border border-gray-100">
-          {/* Header */}
-          <div className="mb-10 text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
-            <p className="text-gray-600">Please enter your details to sign in</p>
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+          <div className="mb-6 text-center">
+            <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+            <p className="text-gray-600">Sign in to continue</p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Field */}
-            <div className="space-y-2">
+          {error && (
+            <div className="mb-4 text-sm text-red-600 bg-red-100 border border-red-300 p-3 rounded-lg animate-fade-in">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
               <label className="block text-sm font-medium text-gray-700">Username</label>
               <input
                 type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
                 placeholder="Enter your username"
-                className="w-full px-4 py-3 rounded-xl text-gray-900 border border-gray-200 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         transition duration-200 placeholder:text-gray-400"
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                autoComplete="username"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
 
-            {/* Password Field */}
-            <div className="space-y-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="Enter your password"
-                className="w-full px-4 py-3 rounded-xl text-gray-900 border border-gray-200 
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                         transition duration-200 placeholder:text-gray-400"
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                autoComplete="current-password"
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
 
-            {/* Error Message */}
-            {error && (
-              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
-                {error}
-              </div>
-            )}
-
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-600 text-white mt-6 py-3.5 rounded-xl font-medium
-                       transform transition-all duration-200 
-                       hover:bg-blue-700 active:scale-98
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                       disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium transition duration-200 hover:bg-blue-700 disabled:opacity-60"
             >
-              {isLoading ? (
-                <span className="inline-flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                "Sign in"
-              )}
+              {isLoading ? "Signing in..." : "Sign in"}
             </button>
-
-            {/* Register Link */}
-            <div className="text-center mt-6">
-              <p className="text-gray-600 text-sm">
-                Don't have an account?{" "}
-                <button
-                  type="button"
-                  onClick={() => navigate("/register")} 
-                  className="text-blue-600 font-medium hover:text-blue-700 
-                           focus:outline-none focus:underline transition duration-200"
-                >
-                  Create one
-                </button>
-              </p>
-            </div>
           </form>
+
+          <p className="text-center text-sm text-gray-600 mt-5">
+            Don't have an account?{" "}
+            <button
+              type="button"
+              onClick={() => navigate("/register")}
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Create one
+            </button>
+          </p>
         </div>
       </div>
     </div>
