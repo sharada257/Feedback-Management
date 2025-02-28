@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { getUserProfile } from "../api/auth";
-import { User, Mail, Shield, UserCircle } from "lucide-react"; 
+import { User, Mail, Shield, UserCircle } from "lucide-react";
+
+// Helper function to capitalize the first letter of a string
+const capitalizeFirstLetter = (str) => {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
@@ -22,8 +28,8 @@ const Profile = () => {
 
   if (isLoading) {
     return (
-      <div className="p-8 max-w-2xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
+      <div className="p-8 max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg p-8">
           <div className="space-y-6">
             <div className="animate-pulse h-24 w-24 bg-slate-200 rounded-full mx-auto"></div>
             <div className="animate-pulse h-8 bg-slate-200 rounded w-1/3 mx-auto"></div>
@@ -43,68 +49,71 @@ const Profile = () => {
       <div className="p-8 max-w-4xl mx-auto">
         <div className="bg-red-50 text-red-600 p-4 rounded-lg text-center">{error}</div>
       </div>
-);
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
-            <div className="flex flex-col items-center">
-              <div className="bg-white/10 p-4 rounded-full backdrop-blur-sm mb-4">
-                <UserCircle size={80} className="text-white" />
+          <div className="flex bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 items-center">
+            <div className="relative flex-shrink-0">
+              <div className="bg-white/20 p-4 rounded-full mb-4">
+                <UserCircle size={100} className="text-white" />
               </div>
-              <h2 className="text-3xl font-bold mb-2">
-                {profile?.user?.username}
+            </div>
+            <div className="ml-6">
+              <h2 className="text-3xl font-bold leading-tight">
+                {capitalizeFirstLetter(profile?.user?.username)}
               </h2>
-              <span className="px-4 py-1.5 bg-white/20 rounded-full text-sm font-medium backdrop-blur-sm">
-                {profile?.role}
+              <span className="mt-2 inline-block px-6 py-2 bg-white/30 rounded-full text-lg font-medium backdrop-blur-md">
+                {capitalizeFirstLetter(profile?.role)}
               </span>
             </div>
           </div>
 
           {/* Profile Details */}
-          <div className="p-8">
-            <div className="space-y-6">
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
+          <div className="p-8 space-y-6">
+            {/* Username */}
+            <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
+              <User className="text-blue-600 w-6 h-6 mr-4" />
+              <div>
+                <p className="text-sm text-gray-500">Username</p>
+                <p className="font-semibold text-gray-900">{capitalizeFirstLetter(profile?.user?.username)}</p>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
+              <Mail className="text-blue-600 w-6 h-6 mr-4" />
+              <div>
+                <p className="text-sm text-gray-500">Email</p>
+                <p className="font-semibold text-gray-900">{profile?.user?.email}</p>
+              </div>
+            </div>
+
+            {/* Role */}
+            <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
+              <Shield className="text-blue-600 w-6 h-6 mr-4" />
+              <div>
+                <p className="text-sm text-gray-500">Role</p>
+                <p className="font-semibold text-gray-900">{capitalizeFirstLetter(profile?.role)}</p>
+              </div>
+            </div>
+
+            {/* Full Name */}
+            {(profile?.user?.first_name || profile?.user?.last_name) && (
+              <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
                 <User className="text-blue-600 w-6 h-6 mr-4" />
                 <div>
-                  <p className="text-sm text-gray-500">Username</p>
-                  <p className="font-medium text-gray-900">{profile?.user?.username}</p>
+                  <p className="text-sm text-gray-500">Full Name</p>
+                  <p className="font-semibold text-gray-900">
+                    {`${capitalizeFirstLetter(profile?.user?.first_name || "")} ${capitalizeFirstLetter(profile?.user?.last_name || "")}`}
+                  </p>
                 </div>
               </div>
-
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
-                <Mail className="text-blue-600 w-6 h-6 mr-4" />
-                <div>
-                  <p className="text-sm text-gray-500">Email</p>
-                  <p className="font-medium text-gray-900">{profile?.user?.email}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
-                <Shield className="text-blue-600 w-6 h-6 mr-4" />
-                <div>
-                  <p className="text-sm text-gray-500">Role</p>
-                  <p className="font-medium text-gray-900">{profile?.role}</p>
-                </div>
-              </div>
-
-              
-              {(profile?.user?.first_name || profile?.user?.last_name) && (
-                <div className="flex items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                  <User className="text-blue-600 w-6 h-6 mr-4" />
-                  <div>
-                    <p className="text-sm text-gray-500">Full Name</p>
-                    <p className="font-medium text-gray-900">
-                      {`${profile?.user?.first_name || ''} ${profile?.user?.last_name || ''}`}
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         </div>
       </div>
