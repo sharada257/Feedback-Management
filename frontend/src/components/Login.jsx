@@ -29,15 +29,12 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 backdrop-blur-lg border border-gray-100">
-          {/* Header */}
           <div className="mb-10 text-center">
             <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
             <p className="text-gray-600">Please enter your details to sign in</p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Username Field */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Username</label>
               <input
@@ -50,7 +47,6 @@ const Login = () => {
               />
             </div>
 
-            {/* Password Field */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-700">Password</label>
               <input
@@ -63,14 +59,12 @@ const Login = () => {
               />
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
                 {error}
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
@@ -93,7 +87,6 @@ const Login = () => {
               )}
             </button>
 
-            {/* Register Link */}
             <div className="text-center mt-6">
               <p className="text-gray-600 text-sm">
                 Don't have an account?{" "}
