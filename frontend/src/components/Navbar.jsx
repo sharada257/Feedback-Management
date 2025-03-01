@@ -39,9 +39,7 @@ const Navbar = () => {
                 Tracker
               </Link>
             )}
-
-
-
+            
               {(role === 'admin' || role === 'moderator') && (
               <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
                 Kanban Board
