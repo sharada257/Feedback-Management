@@ -32,14 +32,12 @@ class Board(models.Model):
             )
         )
         
-        # Calculate trending feedbacks
         trending_feedbacks = sorted(
             feedbacks,
             key=lambda x: x['engagement_score'],
             reverse=True
         )[:5]
         
-        # Count statuses
         status_counts = {}
         active_count = 0
         total_count = 0
@@ -109,7 +107,7 @@ class Feedback(models.Model):
         choices=STATUS_CHOICES,
         default='Open',
         max_length=20,
-        db_index=True  # Add index for frequent filtering
+        db_index=True  
     )
 
 
