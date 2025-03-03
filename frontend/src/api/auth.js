@@ -12,8 +12,6 @@ export const registerUser = async (userData) => {
   }
 };
 
-
-
 export const loginUser = async (credentials) => {
   try {
     console.log(credentials)

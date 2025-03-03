@@ -78,11 +78,23 @@ class Feedback(models.Model):
 
         self.upvote_count = self.upvoted_by.count()
         self.save(update_fields=['upvote_count'])
+<<<<<<< HEAD
 
         return {
             "upvoted_by": list(self.upvoted_by.values_list('id', flat=True)),  
             "upvote_count": self.upvote_count,
         }
+=======
+        return True
+    
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
+    status = models.CharField(
+        choices=STATUS_CHOICES,
+        default='Open',
+        max_length=20,
+        db_index=True  
+    )
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
 
 
 class Comment(models.Model):
@@ -99,4 +111,8 @@ class Comment(models.Model):
         super().save(*args, **kwargs)
         if is_new:
             self.feedback.comment_count = self.feedback.comments.count()
+<<<<<<< HEAD
             self.feedback.save(update_fields=['comment_count']) 
+=======
+            self.feedback.save(update_fields=['comment_count'])  # ✅ Only update necessary fields
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06

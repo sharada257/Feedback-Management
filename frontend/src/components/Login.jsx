@@ -49,6 +49,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
       <div className="w-full max-w-md">
+<<<<<<< HEAD
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
           <div className="mb-6 text-center">
             <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
@@ -63,6 +64,16 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
+=======
+        <div className="bg-white rounded-2xl shadow-2xl p-8 md:p-10 backdrop-blur-lg border border-gray-100">
+          <div className="mb-10 text-center">
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome back</h1>
+            <p className="text-gray-600">Please enter your details to sign in</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
               <label className="block text-sm font-medium text-gray-700">Username</label>
               <input
                 type="text"
@@ -75,7 +86,11 @@ const Login = () => {
               />
             </div>
 
+<<<<<<< HEAD
             <div>
+=======
+            <div className="space-y-2">
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
               <label className="block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
@@ -88,6 +103,15 @@ const Login = () => {
               />
             </div>
 
+<<<<<<< HEAD
+=======
+            {error && (
+              <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
+                {error}
+              </div>
+            )}
+
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
             <button
               type="submit"
               disabled={isLoading}
@@ -95,6 +119,23 @@ const Login = () => {
             >
               {isLoading ? "Signing in..." : "Sign in"}
             </button>
+<<<<<<< HEAD
+=======
+
+            <div className="text-center mt-6">
+              <p className="text-gray-600 text-sm">
+                Don't have an account?{" "}
+                <button
+                  type="button"
+                  onClick={() => navigate("/register")} 
+                  className="text-blue-600 font-medium hover:text-blue-700 
+                           focus:outline-none focus:underline transition duration-200"
+                >
+                  Create one
+                </button>
+              </p>
+            </div>
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
           </form>
 
           <p className="text-center text-sm text-gray-600 mt-5">

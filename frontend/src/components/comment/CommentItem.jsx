@@ -6,12 +6,10 @@ const CommentItem = ({ comment, currentUser, feedbackId, onUpdateComment, onDele
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editCommentData, setEditCommentData] = useState("");
 
-  // Check if user has admin/moderator permissions
   const hasModeratorPermissions = () => {
     return currentUser?.role === 'admin' || currentUser?.role === 'moderator';
   };
 
-  // Check if user owns a specific comment
   const isOwnComment = (commentUserId) => {
     return currentUser?.id === commentUserId;
   };
@@ -79,7 +77,6 @@ const CommentItem = ({ comment, currentUser, feedbackId, onUpdateComment, onDele
           <div className="flex justify-between items-center mb-1">
             <p className="font-medium text-gray-800">{comment.user?.username || "User"}:</p>
             
-            {/* Comment Actions - Always visible for authorized users */}
             {(isOwnComment(comment.user) || hasModeratorPermissions()) && (
               <div className="flex space-x-1">
                 {isOwnComment(comment.user) && (

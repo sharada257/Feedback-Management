@@ -47,7 +47,11 @@ const Navbar = () => {
                 Feedbacks
               </Link>
             )}
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
               {(role === 'admin' || role === 'moderator') && (
               <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
                 Kanban Board

@@ -1,4 +1,3 @@
-// common/LoadingState.jsx - Reusable loading component
 import React from "react";
 
 const LoadingState = () => {
