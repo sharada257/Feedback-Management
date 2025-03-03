@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { logoutUser } from '../api/auth';
+
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setUserRole] = useState(null);
@@ -47,16 +48,8 @@ const Navbar = () => {
                 Feedbacks
               </Link>
             )}
-<<<<<<< HEAD
             
-=======
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
->>>>>>> 1c810a83e8f729175a0a3bbe161c7bc8a464d9dc
-              {(role === 'admin' || role === 'moderator') && (
+            {(role === 'admin' || role === 'moderator') && (
               <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
                 Kanban Board
               </Link>
