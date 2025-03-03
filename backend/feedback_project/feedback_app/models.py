@@ -61,11 +61,16 @@ class Feedback(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    status = models.CharField(choices=STATUS_CHOICES,default='Open',max_length=20)
+    status = models.CharField(
+        choices=STATUS_CHOICES,
+        default='Open',
+        max_length=20,
+        db_index=True  
+    )
     upvote_count = models.PositiveIntegerField(default=0)
     comment_count = models.PositiveIntegerField(default=0)
     upvoted_by = models.ManyToManyField(User, related_name='upvoted_feedbacks',blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     class Meta:
         ordering = ['-created_at']
@@ -78,35 +83,11 @@ class Feedback(models.Model):
 
         self.upvote_count = self.upvoted_by.count()
         self.save(update_fields=['upvote_count'])
-<<<<<<< HEAD
-
-=======
-<<<<<<< HEAD
->>>>>>> 1c810a83e8f729175a0a3bbe161c7bc8a464d9dc
 
         return {
             "upvoted_by": list(self.upvoted_by.values_list('id', flat=True)),  
             "upvote_count": self.upvote_count,
         }
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 1c810a83e8f729175a0a3bbe161c7bc8a464d9dc
-        return True
-    
-    created_at = models.DateTimeField(default=timezone.now, db_index=True)
-    status = models.CharField(
-        choices=STATUS_CHOICES,
-        default='Open',
-        max_length=20,
-        db_index=True  
-    )
-<<<<<<< HEAD
-
-=======
->>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
->>>>>>> 1c810a83e8f729175a0a3bbe161c7bc8a464d9dc
-
 
 class Comment(models.Model):
     feedback = models.ForeignKey(Feedback, on_delete=models.CASCADE, related_name='comments')
@@ -122,12 +103,4 @@ class Comment(models.Model):
         super().save(*args, **kwargs)
         if is_new:
             self.feedback.comment_count = self.feedback.comments.count()
-<<<<<<< HEAD
-            self.feedback.save(update_fields=['comment_count']) 
-=======
-<<<<<<< HEAD
-            self.feedback.save(update_fields=['comment_count']) 
-=======
-            self.feedback.save(update_fields=['comment_count'])  # ✅ Only update necessary fields
->>>>>>> 54cc96a2edb0e6354407ef04db231f21ab944c06
->>>>>>> 1c810a83e8f729175a0a3bbe161c7bc8a464d9dc
+            self.feedback.save(update_fields=['comment_count'])  
