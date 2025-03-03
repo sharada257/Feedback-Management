@@ -7,7 +7,7 @@ const Register = () => {
     username: "",
     email: "",
     password: "",
-    role: "Contributor", 
+    role: "contributor", 
   });
 
   const navigate = useNavigate();
@@ -64,9 +64,9 @@ const Register = () => {
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               value={formData.role}
             >
-              <option value="admin">Admin</option>
-              <option value="moderator">Moderator</option>
-              <option value="contributor">Contributor</option>
+              <option value="admin">admin</option>
+              <option value="moderator">moderator</option>
+              <option value="contributor">contributor</option>
             </select>
           </div>
 

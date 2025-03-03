@@ -36,13 +36,17 @@ const Navbar = () => {
             </Link>
           )}
 
+          {(role === 'admin'  || role === 'moderator' ) && (
+            <Link to="/users" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
+              Users
+            </Link>
+          )}
+
             {(role === 'admin' || role === 'moderator') && (
               <Link to="/feedbacks" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">
-                Tracker
+                Feedbacks
               </Link>
             )}
-
-
 
               {(role === 'admin' || role === 'moderator') && (
               <Link to="/kanban" className="px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:bg-white/10 hover:scale-105">

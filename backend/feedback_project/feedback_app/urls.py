@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.authtoken.views import obtain_auth_token
 from .views import toggle_upvote
 from .views import (
-    login_view, logout_view, register_view, get_user_info,
+    login_view, logout_view, register_view, get_user_info,get_users,
     BoardViewSet, FeedbackViewSet, CommentViewSet
 )
 
@@ -30,6 +30,7 @@ urlpatterns = [
     path('profile/', get_user_info, name='user-info'),
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     path('feedbacks/<int:feedback_id>/toggle_upvote/', toggle_upvote, name='toggle-upvote'),
+    path('users/', get_users, name='get-users'),  
 
 
     #Endpoint: POST /api-token-auth/

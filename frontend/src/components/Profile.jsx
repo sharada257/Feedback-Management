@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { getUserProfile } from "../api/auth";
 import { User, Mail, Shield, UserCircle } from "lucide-react";
 
-// Helper function to capitalize the first letter of a string
 const capitalizeFirstLetter = (str) => {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -56,7 +55,6 @@ const Profile = () => {
     <div className="min-h-screen bg-gray-100 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-          {/* Profile Header */}
           <div className="flex bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-8 items-center">
             <div className="relative flex-shrink-0">
               <div className="bg-white/20 p-4 rounded-full mb-4">
@@ -73,9 +71,7 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Profile Details */}
           <div className="p-8 space-y-6">
-            {/* Username */}
             <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
               <User className="text-blue-600 w-6 h-6 mr-4" />
               <div>
@@ -84,7 +80,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
               <Mail className="text-blue-600 w-6 h-6 mr-4" />
               <div>
@@ -93,7 +88,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Role */}
             <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
               <Shield className="text-blue-600 w-6 h-6 mr-4" />
               <div>
@@ -102,7 +96,6 @@ const Profile = () => {
               </div>
             </div>
 
-            {/* Full Name */}
             {(profile?.user?.first_name || profile?.user?.last_name) && (
               <div className="flex items-center p-6 bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow">
                 <User className="text-blue-600 w-6 h-6 mr-4" />

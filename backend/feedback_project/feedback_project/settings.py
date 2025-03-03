@@ -37,14 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
+    'rest_framework',#I added this line
     'corsheaders',         
-    'feedback_app',
     'django_extensions', 
     'rest_framework.authtoken',
+    'feedback_app', # Add the app name here
 ]
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:5173']
+CORS_ALLOWED_ORIGINS = ['http://localhost:5173'] # Add the frontend URL here
 
 
 
@@ -125,17 +125,21 @@ USE_TZ = True
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+
+
+#This configuration is for Django REST Framework (DRF) and controls authentication and permissions in  Django backend.
+
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',  # For Token Auth
+    'DEFAULT_AUTHENTICATION_CLASSES': [ # we are telling django to use token for authentication
+        'rest_framework.authentication.TokenAuthentication',  # token are used for authentication
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+    'DEFAULT_PERMISSION_CLASSES': [#only authenticated users will be allowed to access the api
+        'rest_framework.permissions.IsAuthenticated', #we can use AllowAny to allow all users to access the api
     ]
 }
 
 
-AUTH_USER_MODEL = 'auth.User'
+AUTH_USER_MODEL = 'auth.User' #django's default user model is used(django.contrib.auth.models.User)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

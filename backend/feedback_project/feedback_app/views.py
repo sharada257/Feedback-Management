@@ -1,7 +1,5 @@
 from rest_framework import permissions, status
-from rest_framework.decorators import (
-    api_view, permission_classes, authentication_classes, action
-)
+from rest_framework.decorators import (api_view, permission_classes, authentication_classes, action)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import authenticate, login
@@ -144,3 +142,36 @@ class CommentViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def get_users(request):
+    # Check if user has permission to view user list
+    user = request.user
+    if not hasattr(user, 'userprofile') or user.userprofile.role not in ['admin', 'moderator']:
+        return Response({"detail": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
+    users_data = []
+    users = User.objects.all().prefetch_related('userprofile')
+    
+    for user in users:
+        user_data = {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'name': f"{user.first_name} {user.last_name}".strip() or user.username,
+            'created_at': user.date_joined,
+        }
+        
+        if hasattr(user, 'userprofile'):
+            user_data.update({
+                'role': user.userprofile.role.lower(),
+            })
+        else:
+            user_data.update({
+                'role': 'contributor',
+            })
+        
+        users_data.append(user_data)
+    
+    return Response(users_data)

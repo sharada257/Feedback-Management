@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import Navbar from "./components/Navbar"
 import FeedbackSystem from "./components/Feedback/FeedbackSystem";
 import BoardList from "./components/Board/BoardList";
+import UsersTable from "./components/UsersTable";
 
 function App() {
   const location = useLocation(); // Get current route path
@@ -29,6 +30,8 @@ function App() {
         <Route path="/" element={<ProtectedRoute allowedRoles={["admin", "moderator", "contributor"]}><Dashboard /></ProtectedRoute>} />
         <Route path="/feedbacks" element={<FeedbackTable/>} />
         <Route path="/feedback-system" element={<FeedbackSystem/>} />
+        <Route path="/users" element={<UsersTable/>} />
+
 
         <Route path="/boards" element={<BoardList />} />
         <Route path="/board/:boardId" element={<BoardDetails/>} />

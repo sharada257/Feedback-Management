@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { loginUser } from "../api/auth";
+import { getUserProfile, loginUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
@@ -21,7 +21,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(""); // Reset error only on new attempt
+    setError(""); 
 
     if (!formData.username || !formData.password) {
       setError("Both fields are required.");
@@ -31,9 +31,13 @@ const Login = () => {
 
     try {
       const response = await loginUser(formData);
-      localStorage.setItem("token", response.token);
-      navigate("/");
-    } catch (err) {
+      const res = await getUserProfile(); 
+      if (res.role === "admin" || res.role === "moderator") { 
+        navigate("/");
+      } else {
+        navigate("/boards");
+      }
+    }catch (err) {
       setError(
         err.response?.data?.detail || "Invalid credentials. Please try again."
       );
